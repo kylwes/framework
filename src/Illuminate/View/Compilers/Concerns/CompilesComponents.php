@@ -101,6 +101,8 @@ trait CompilesComponents
         ]);
     }
 
+    protected $currentSlot = null;
+
     /**
      * Compile the slot statements into valid PHP.
      *
@@ -109,6 +111,14 @@ trait CompilesComponents
      */
     protected function compileSlot($expression)
     {
+        $this->currentSlot = explode(", ", str_replace(['(', ')'], ['', ''], $expression));
+        $slot = $this->currentSlot[0];
+        $scoped = $this->currentSlot[3] ?? false;
+
+        if ($scoped) {
+            return "<?php \$__env->slot($slot, '";
+        }
+
         return "<?php \$__env->slot{$expression}; ?>";
     }
 
@@ -119,7 +129,14 @@ trait CompilesComponents
      */
     protected function compileEndSlot()
     {
-        return '<?php $__env->endSlot(); ?>';
+        $attributes = $this->currentSlot[2] ?? [];
+        $scoped = $this->currentSlot[3] ?? false;
+
+        if ($scoped) {
+            return "', $attributes, $scoped); ?>";
+        }
+
+        return "<?php \$__env->endSlot(); ?>";
     }
 
     /**

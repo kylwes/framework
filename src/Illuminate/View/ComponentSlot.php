@@ -2,6 +2,8 @@
 
 namespace Illuminate\View;
 
+use Illuminate\Container\Container;
+use Illuminate\Support\Facades\View;
 use Illuminate\Contracts\Support\Htmlable;
 
 class ComponentSlot implements Htmlable
@@ -32,6 +34,30 @@ class ComponentSlot implements Htmlable
         $this->contents = $contents;
 
         $this->withAttributes($attributes);
+    }
+
+    /**
+     * Render the defined scoped slot.
+     *
+     * @param  array  $attributes
+     * @return View
+     */
+    public function scoped(array $attributes)
+    {
+        if (!$this->contents) {
+            return;
+        }
+
+        // Make sure the __components hint is defined.
+        // Container::getInstance()->make('view')->addNamespace(
+        //     '__components',
+        //     Container::getInstance()['config']->get('view.compiled')
+        // );
+
+        // $a = Container::getInstance()->make('view');
+        // dd($a);
+
+        // return view($this->contents, $attributes);
     }
 
     /**

@@ -445,7 +445,14 @@ class ComponentTagCompiler
 
             $attributes = $this->getAttributesFromAttributeString($matches['attributes']);
 
-            return " @slot({$name}, null, [".$this->attributesToString($attributes).']) ';
+            $scoped = isset($attributes['scoped']);
+
+            if ($scoped) {
+                unset($attributes['scoped']);
+                return " @scopedSlot({$name}, [".$this->attributesToString($attributes). "]) ";
+            }
+
+            return " @slot({$name}, null, [".$this->attributesToString($attributes)."]) ";
         }, $value);
 
         return preg_replace('/<\/\s*x[\-\:]slot[^>]*>/', ' @endslot', $value);

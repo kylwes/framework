@@ -27,6 +27,14 @@ class BladeComponentTagCompilerTest extends AbstractBladeTestCase
         $this->assertSame("@slot('foo', null, []) \n".' @endslot', trim($result));
     }
 
+    public function testScopedSlotsCanBeCompiled()
+    {
+        $result = $this->compiler()->compileSlots('<x-slot name="foo" scoped>
+</x-slot>');
+
+        $this->assertSame("@scopedSlot('foo', []) \n".' @endslot', trim($result));
+    }
+
     public function testDynamicSlotsCanBeCompiled()
     {
         $result = $this->compiler()->compileSlots('<x-slot :name="$foo">
@@ -43,12 +51,28 @@ class BladeComponentTagCompilerTest extends AbstractBladeTestCase
         $this->assertSame("@slot('foo', null, ['class' => 'font-bold']) \n".' @endslot', trim($result));
     }
 
+    public function testScopedSlotsWithAttributesCanBeCompiled()
+    {
+        $result = $this->compiler()->compileSlots('<x-slot name="foo" class="font-bold" scoped>
+</x-slot>');
+
+        $this->assertSame("@scopedSlot('foo', ['class' => 'font-bold']) \n".' @endslot', trim($result));
+    }
+
     public function testSlotsWithDynamicAttributesCanBeCompiled()
     {
         $result = $this->compiler()->compileSlots('<x-slot name="foo" :class="$classes">
 </x-slot>');
 
         $this->assertSame("@slot('foo', null, ['class' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(\$classes)]) \n".' @endslot', trim($result));
+    }
+
+    public function testScopedSlotsWithDynamicAttributesCanBeCompiled()
+    {
+        $result = $this->compiler()->compileSlots('<x-slot name="foo" :class="$classes" scoped>
+</x-slot>');
+
+        $this->assertSame("@scopedSlot('foo', ['class' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(\$classes)]) \n".' @endslot', trim($result));
     }
 
     public function testBasicComponentParsing()

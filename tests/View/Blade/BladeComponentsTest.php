@@ -2,8 +2,16 @@
 
 namespace Illuminate\Tests\View\Blade;
 
+use Illuminate\View\View;
+use Illuminate\Container\Container;
+
 class BladeComponentsTest extends AbstractBladeTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+    }
+
     public function testComponentsAreCompiled()
     {
         $this->assertSame('<?php $__env->startComponent(\'foo\', ["foo" => "bar"]); ?>', $this->compiler->compileString('@component(\'foo\', ["foo" => "bar"])'));
@@ -46,6 +54,16 @@ class BladeComponentsTest extends AbstractBladeTestCase
     {
         $this->assertSame('<?php $__env->slot(\'foo\', null, ["foo" => "bar"]); ?>', $this->compiler->compileString('@slot(\'foo\', null, ["foo" => "bar"])'));
         $this->assertSame('<?php $__env->slot(\'foo\'); ?>', $this->compiler->compileString('@slot(\'foo\')'));
+    }
+
+    public function testScopedSlotsAreCompiled()
+    {
+        $component = '__component::' . sha1('<h1>Test</h1>');
+        // \Illuminate\Container\Container::getInstance()->bind('view');
+        // dd($component);
+
+
+        $this->assertSame('<?php $__env->scopedSlot(\'foo\', null, ["foo" => "bar"]) ?>', $this->compiler->compileString('@scopedSlot(\'foo\', ["foo" => "bar"])<h1>Test</h1>@endslot'));
     }
 
     public function testEndSlotsAreCompiled()

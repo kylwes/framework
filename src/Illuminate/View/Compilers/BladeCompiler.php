@@ -4,8 +4,9 @@ namespace Illuminate\View\Compilers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
-use Illuminate\Support\Traits\ReflectsClosures;
 use InvalidArgumentException;
+use Illuminate\Container\Container;
+use Illuminate\Support\Traits\ReflectsClosures;
 
 class BladeCompiler extends Compiler implements CompilerInterface
 {
@@ -234,6 +235,8 @@ class BladeCompiler extends Compiler implements CompilerInterface
             $this->compileComments($this->storeUncompiledBlocks($value))
         );
 
+        $value = $this->transformScopedSlotToNormalSlot($value);
+
         foreach ($this->precompilers as $precompiler) {
             $value = call_user_func($precompiler, $value);
         }
@@ -322,6 +325,21 @@ class BladeCompiler extends Compiler implements CompilerInterface
         return $this->getRawPlaceholder(
             array_push($this->rawBlocks, $value) - 1
         );
+    }
+
+    /**
+     * Compile the component scoped slots.
+     *
+     * @param  string  $value
+     * @return string
+     */
+    protected function transformScopedSlotToNormalSlot($value)
+    {
+        return preg_replace_callback('/(?<!@)@scopedSlot\(\'(.*?)\',?\s?(\[?.*?\]?)\)(.*?)@endslot/s', function ($matches) {
+            $component = (new \Illuminate\View\AnonymousComponent(trim($matches[3]), []))->resolveView();
+
+            return $this->storeRawBlock("<?php \$__env->scopedSlot('$matches[1]', '$component', $matches[2]) ?>");
+        }, $value);
     }
 
     /**

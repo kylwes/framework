@@ -99,6 +99,25 @@ class BladeTest extends TestCase
 <div>Slot: F, Color: yellow, Default: foo</div>', trim($view));
     }
 
+    public function test_scoped_slots()
+    {
+        $view = View::make('scoped-slots', ['numbers' => [1, 2, 3]])->render();
+
+        $this->assertSame('<table>
+  <tbody>
+          <tr>
+        <td>Number: 1</td>
+      </tr>
+          <tr>
+        <td>Number: 2</td>
+      </tr>
+          <tr>
+        <td>Number: 3</td>
+      </tr>
+      </tbody>
+</table>', trim($view));
+    }
+
     protected function getEnvironmentSetUp($app)
     {
         $app['config']->set('view.paths', [__DIR__.'/templates']);

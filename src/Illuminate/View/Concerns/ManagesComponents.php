@@ -167,8 +167,16 @@ trait ManagesComponents
      * @param  array  $attributes
      * @return void
      */
-    public function slot($name, $content = null, $attributes = [])
+    public function slot($name, $content = null, $attributes = [], $scoped = false)
     {
+        if ($scoped) {
+            $this->slots[$this->currentComponent()][$name] = new ComponentSlot(
+                trim($content),
+                $attributes
+            );
+            return;
+        }
+
         if (func_num_args() === 2 || $content !== null) {
             $this->slots[$this->currentComponent()][$name] = $content;
         } elseif (ob_start()) {
@@ -195,6 +203,22 @@ trait ManagesComponents
 
         $this->slots[$this->currentComponent()][$currentName] = new ComponentSlot(
             trim(ob_get_clean()), $currentAttributes
+        );
+    }
+
+    /**
+     * Save the scoped slot content for rendering.
+     *
+     * @param  string  $name
+     * @param  string  $component
+     * @param  array  $attributes
+     * @return void
+     */
+    public function scopedSlot($name, $component, $attributes = [])
+    {
+        $this->slots[$this->currentComponent()][$name] = new ComponentSlot(
+            $component,
+            $attributes
         );
     }
 
